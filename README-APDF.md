@@ -64,7 +64,10 @@ An **Agent Principal** is a solo operator who orchestrates specialized AI agents
 │   └── CLAUDE.md        # Project instructions
 ├── state.json           # Progress and audit tracking (template)
 ├── state.example.json   # Example of populated state
-└── meta.json            # Schema metadata
+├── meta.json            # Schema metadata
+├── install.sh           # Unix/Mac installer
+├── install.ps1          # Windows installer
+└── .gitignore.apdf      # Git ignore entries (merged during install)
 ```
 
 ## State Management
@@ -116,9 +119,63 @@ state.json → populated with:
 | `/APDF_approve` | Approve pending items |
 | `/APDF_gate` | Run quality gate checks |
 
+## Installation
+
+The installer automatically detects conflicts with existing files and uses smart merge strategies to preserve your configuration.
+
+### Windows (PowerShell)
+
+```powershell
+# Clone or download APDF
+git clone https://github.com/your-org/apdf.git
+
+# Run the installer
+.\apdf\install.ps1 -TargetPath "C:\Projects\MyApp"
+
+# Or with --force to skip confirmation prompts
+.\apdf\install.ps1 -TargetPath "C:\Projects\MyApp" -Force
+```
+
+### Mac/Linux (Bash)
+
+```bash
+# Clone or download APDF
+git clone https://github.com/your-org/apdf.git
+
+# Make installer executable
+chmod +x apdf/install.sh
+
+# Run the installer
+./apdf/install.sh /path/to/your/project
+
+# Or with --force to skip confirmation prompts
+./apdf/install.sh /path/to/your/project --force
+```
+
+### What the Installer Does
+
+| Existing File | Action |
+|--------------|--------|
+| `.gitignore` | Appends APDF entries (preserves yours) |
+| `.claude/CLAUDE.md` | Appends APDF section (preserves yours) |
+| `.claude/settings.json` | Deep merges hooks & permissions |
+| `.claude/commands/APDF_*.md` | Backs up existing, installs new |
+| `agents/`, `phases/`, etc. | Backs up to `.apdf-backup/`, replaces |
+
+All overwritten files are backed up to `.apdf-backup/<timestamp>/` before modification.
+
+### Manual Installation
+
+If you prefer manual installation:
+
+1. Copy `agents/`, `phases/`, `methodologies/`, `meta.json`, `roles.json`, `state.json`, `state.example.json` to your project
+2. Copy `.claude/commands/APDF_*.md` to your `.claude/commands/`
+3. Manually merge `.gitignore.apdf` into your `.gitignore`
+4. Manually merge `.claude/CLAUDE.md` and `.claude/settings.json`
+
 ## Usage with Claude Code
 
-1. Copy this framework to your project root
+1. Run the installer (see Installation above)
 2. Open Claude Code in the project directory
 3. Run `/APDF_init` for new projects or `/APDF_onboard` for existing
 4. Follow the guided workflow
